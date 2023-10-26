@@ -1,6 +1,5 @@
 "use client";
 import FileSaver from "file-saver";
-import { url } from "inspector";
 import { Download } from "lucide-react";
 import React from "react";
 import { Button } from "~/components/ui/button";

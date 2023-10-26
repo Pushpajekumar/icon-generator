@@ -17,7 +17,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { Download, Loader, MoveRight } from "lucide-react";
 import Image from "next/image";
-import { saveAs } from "file-saver";
 
 const formSchema = z.object({
   prompt: z.string().min(2, {

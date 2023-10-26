@@ -44,7 +44,15 @@ const Header = async () => {
         <ToggleTheme />
       </div>
       <div className="flex items-center gap-5 md:hidden">
-        <p>{getCredit()} credit </p>
+        <div>
+          {session ? (
+            <p>{getCredit()} credit </p>
+          ) : (
+            <Link href={"/sign-in"}>
+              <Button variant={"ghost"}>Sign in</Button>
+            </Link>
+          )}
+        </div>
         <MobileNav />
       </div>
     </header>

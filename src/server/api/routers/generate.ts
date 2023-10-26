@@ -70,8 +70,8 @@ export const openaiRouter = createTRPCRouter({
             and(eq(users.id, ctx.session.user.id), gte(users.credits, input.n)),
           );
 
-        const prompt = ` a modern icon of ${input.prompt},${input.bgColor} color, icon, ${input.type}, digital art, mascot, mascot icon`;
-        const generatedIcons = await generateIcon(prompt, input.n);
+        // const prompt = ` a modern icon of ${input.prompt},${input.bgColor} color, icon, ${input.type}, digital art, mascot, mascot icon`;
+        const generatedIcons = await generateIcon(input.prompt, input.n);
 
         if (!generatedIcons) {
           throw new TRPCError({

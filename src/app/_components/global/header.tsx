@@ -53,6 +53,7 @@ const Header = async () => {
             </Link>
           )}
         </div>
+        <ToggleTheme />
         <MobileNav />
       </div>
     </header>

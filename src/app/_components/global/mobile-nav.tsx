@@ -32,10 +32,10 @@ const MobileNav = async () => {
             <Link href={"/generate"}>Generate</Link>
           </li>
           <li>
-            <Link href={"/"}>My Collection</Link>
+            <Link href={"/myCollection"}>My Collection</Link>
           </li>
         </ul>
-        <SheetFooter>
+        <SheetFooter className="my-20">
           <p className="text-base font-semibold">
             {session && <span> {session.user?.name}</span>}
           </p>

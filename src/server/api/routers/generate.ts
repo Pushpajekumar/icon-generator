@@ -5,6 +5,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { icons, users } from "~/server/db/schema";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { iconStyle } from "~/lib/constant";
 
 const s3 = new AWS.S3({
   credentials: {
@@ -22,7 +23,7 @@ async function generateIcon(prompt: string, numberOfIcon: number) {
     const response = await openai.images.generate({
       prompt,
       n: numberOfIcon,
-      size: "1024x1024",
+      size: "512x512",
       response_format: "b64_json",
     });
     return response.data.map((result) => result.b64_json);
@@ -70,13 +71,29 @@ export const openaiRouter = createTRPCRouter({
             and(eq(users.id, ctx.session.user.id), gte(users.credits, input.n)),
           );
 
-        // const prompt = ` a modern icon of ${input.prompt},${input.bgColor} color, icon, ${input.type}, digital art, mascot, mascot icon`;
+        const selectedIconStyle = iconStyle.find(
+          (style) => style.id === input.type,
+        );
+        if (!selectedIconStyle) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid icon style type",
+          });
+        }
+
+        // const prompt = `Create ICON of ${input.prompt}. Use these style digital art, digital art icon, ${selectedIconStyle.style}. Only USE ICON the style that is given to you. DO NOT use any other ICON style from YOUR SIDE. MOST IMPORTANT thing is to LEAVE some SPACING from all side of the icon from RIGHT, LRFT, TOP, BOTTOM and  also from every CORNER of the icon. `;
+        // const prompt = `Create ICON of ${
+        //   input.prompt
+        // } in ${input.bgColor.toUpperCase()} COLOR. Use STRICTLY the color given to you. DO NOT use any other color combination. Use these style digital art, digital icon art, ${
+        //   selectedIconStyle.style
+        // }. Only USE ICON the style that is given to you. DO NOT use any other ICON style from YOUR SIDE. Most important thing is to make it in SQUARE shape with rounded corner and border around the icon also keep some SPACING from edge of the icon. In Realistic, Hyper Realistic, resolution.`;
+        // console.log(prompt);
         const generatedIcons = await generateIcon(input.prompt, input.n);
 
         if (!generatedIcons) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Something went wrong",
+            message: "Image is not created something went wrong",
           });
         }
 
@@ -91,7 +108,7 @@ export const openaiRouter = createTRPCRouter({
               if (!image) {
                 throw new TRPCError({
                   code: "INTERNAL_SERVER_ERROR",
-                  message: "Something went wrong",
+                  message: "No image to upload on s3s",
                 });
               }
 
@@ -105,11 +122,12 @@ export const openaiRouter = createTRPCRouter({
                 })
                 .promise();
 
-              console.log(insertedIcon);
               return insertedIcon;
             } catch (error) {
-              console.error("Error inserting icon data:", error);
-              return null; // Handle the error as needed
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Eroor on our server while saving in db our s3",
+              });
             }
           }),
         );
@@ -128,3 +146,10 @@ export const openaiRouter = createTRPCRouter({
       }
     }),
 });
+
+// const prompt = `Create ICON of ${
+//   input.prompt
+// } in ${input.bgColor.toUpperCase()} COLOR. Use STRICTLY the color given to you. DO NOT use any other color combination. Use these style digital art, digital icon art, ${
+//   selectedIconStyle.style
+// }. Only USE ICON the style that is given to you. DO NOT use any other ICON style from YOUR SIDE. MOST IMPORTANT thing is to LEAVE some SPACING from all side of the image from RIGHT, LRFT, TOP, BOTTOM and  also from every CORNER of the image.`;
+// console.log(prompt);

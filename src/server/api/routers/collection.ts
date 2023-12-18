@@ -17,7 +17,7 @@ export const collectionRouter = createTRPCRouter({
       .where(eq(users.id, ctx.session.user.id));
     const myUrl = mySelectedIcons.map((icon) => {
       const iconId = icon.id.toString();
-      const url = `https://icon-generator2130.s3.amazonaws.com/${iconId}`;
+      const url = `https://${bucet_name_on_aws}.s3.amazonaws.com/${iconId}`;
       return url;
     });
     return myUrl;
